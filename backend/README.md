@@ -75,6 +75,87 @@ Email exists:
 }
 ```
 
+
+
+
+
+
+
+
+
+
+
+## Login Endpoint
+
+- URL: `/users/login`
+- Method: `POST`
+
+### Description
+
+Authenticates an existing user using their email and password. On success, returns a JWT token. Password comparison uses bcrypt and the stored password is selected explicitly in the controller when checking credentials.
+
+### Request Body
+
+Content-Type: `application/json`
+
+Body fields:
+
+- `email` (string, required) — must be a valid email
+- `password` (string, required) — minimum 6 characters
+
+Example request body:
+
+```
+{
+  "email": "jane.doe@example.com",
+  "password": "StrongP@ssw0rd"
+}
+```
+
+### Responses / Status Codes
+
+- `200 OK` — Login successful. Response body:
+
+```
+{
+  "token": "<jwt-token>",
+  "message": "User logged in successfully"
+}
+```
+
+- `401 Unauthorized` — Invalid email or password. Example response:
+
+```
+{
+  "message": "Invalid email or password"
+}
+```
+
+- `400 Bad Request` — Validation errors (e.g., invalid email format, password too short). Example:
+
+```
+{
+  "errors": [
+    { "msg": "Invalid Email", "param": "email" }
+  ]
+}
+```
+
+- `500 Internal Server Error` — Unexpected server/database error.
+
+### How to test the login endpoint locally
+
+Use the server started in the previous section and send a POST request to `http://localhost:3000/users/login` with the JSON body shown above.
+
+Example PowerShell curl (after registering a user):
+
+```powershell
+curl -Method POST -ContentType 'application/json' -Body (ConvertTo-Json @{
+  email = 'jane.doe@example.com'
+  password = 'StrongP@ssw0rd'
+}) 'http://localhost:3000/users/login'
+```
+
 ## Notes and validation rules
 
 - The `password` is hashed before saving. The stored `password` field is not returned in responses.
