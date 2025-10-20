@@ -156,6 +156,75 @@ curl -Method POST -ContentType 'application/json' -Body (ConvertTo-Json @{
 }) 'http://localhost:3000/users/login'
 ```
 
+## Profile Endpoint
+
+- URL: `/users/profile`
+- Method: `GET`
+- Authentication: Required (JWT via cookie `token` or `Authorization: Bearer <token>` header)
+
+### Description
+
+Returns the currently authenticated user's profile. The `authUser` middleware checks the token, loads the user from the database, and attaches it to `req.user`.
+
+### Responses / Status Codes
+
+- `200 OK` — Returns the authenticated user's public profile data. Example:
+
+```
+{
+  "user": {
+    "_id": "<user-id>",
+    "fullname": { "firstname": "Jane", "lastname": "Doe" },
+    "email": "jane.doe@example.com",
+    "socketId": null
+  }
+}
+```
+
+- `401 Unauthorized` — No token provided, token invalid, or token blacklisted. Example:
+
+```
+{
+  "message": "Access denied. No token provided."
+}
+```
+
+### How to call (PowerShell example)
+
+```powershell
+curl -Method GET -Headers @{ Authorization = "Bearer <jwt-token>" } 'http://localhost:3000/users/profile'
+```
+
+---
+
+## Logout Endpoint
+
+- URL: `/users/logout`
+- Method: `GET`
+- Authentication: Required (JWT via cookie `token` or `Authorization: Bearer <token>` header)
+
+### Description
+
+Logs out the authenticated user by clearing the auth cookie and adding the token to a blacklist collection (short-lived) so it cannot be reused. The controller also returns a success message.
+
+### Responses / Status Codes
+
+- `200 OK` — Logout successful. Example response:
+
+```
+{
+  "message": "User logged out successfully"
+}
+```
+
+- `401 Unauthorized` — No token provided, token invalid, or token already blacklisted.
+
+### How to call (PowerShell example)
+
+```powershell
+curl -Method GET -Headers @{ Authorization = "Bearer <jwt-token>" } 'http://localhost:3000/users/logout'
+```
+
 ## Notes and validation rules
 
 - The `password` is hashed before saving. The stored `password` field is not returned in responses.
